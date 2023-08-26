@@ -1,113 +1,156 @@
-import Image from 'next/image'
+'use client';
 
-export default function Home() {
+import React, { useState, useEffect, useCallback } from 'react';
+import { shuffleArray } from './utils';
+import { quizData } from './quizData';
+
+export default function App() {
+  const [questions, setQuestions] = useState<any[]>([]);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0); // Using an index instead of the question itself
+  const [currentChoices, setCurrentChoices] = useState<string[]>([]);
+  const [score, setScore] = useState(0);
+  const [result, setResult] = useState('');
+  const [selectedLesson, setSelectedLesson] = useState(0);
+  const [isResultVisible, setIsResultVisible] = useState(true);
+  const [isPinyinVisible, setIsPinyinVisible] = useState(true);
+
+  let filteredQuizData: any;
+
+  if (selectedLesson === 0) {
+    filteredQuizData = [...quizData];
+  } else {
+    filteredQuizData = quizData.filter((item) => item.lesson === selectedLesson);
+  }
+
+  // Function to handle the user's answer submission
+  const handleAnswer = (selectedAnswer: any) => {
+    if (selectedAnswer === questions[currentQuestionIndex].answer) {
+      setScore((prevScore) => prevScore + 1);
+      setResult('Correct!');
+    } else {
+      setResult('Wrong!');
+    }
+
+    if (currentQuestionIndex === questions.length) {
+      // All questions have been displayed
+      // Show a restart button or any other desired UI
+      return;
+    }
+
+    setIsResultVisible(true);
+    const timeout = setTimeout(() => {
+      setIsResultVisible(false);
+      setCurrentQuestionIndex((prevIndex) => prevIndex + 1);
+    }, 2000);
+  };
+
+  // Function to restart the quiz
+  const restartQuiz = () => {
+    setCurrentQuestionIndex(0);
+    setScore(0);
+    // Shuffle the questions again to start a new quiz
+    const shuffledQuestions = shuffleArray(filteredQuizData);
+    setQuestions(shuffledQuestions);
+  };
+
+  useEffect(() => {
+    // Shuffle the quizData to avoid repeating questions
+    const shuffledQuestions = shuffleArray(filteredQuizData);
+    setQuestions(shuffledQuestions);
+    setCurrentQuestionIndex(0); // Reset to the first question
+    setScore(0);
+  }, [selectedLesson]);
+
+  useEffect(() => {
+    if (questions.length > 0 && currentQuestionIndex < questions.length) {
+      const currentQuestion = questions[currentQuestionIndex];
+      const shuffledAnswers = shuffleArray([
+        ...currentQuestion.wrongAnswers,
+        currentQuestion.answer,
+      ]);
+      setCurrentChoices(shuffledAnswers);
+    }
+  }, [currentQuestionIndex, questions]);
+
+  const lessonsArray = Array.from(
+    quizData
+      .map((item) => item.lesson)
+      .filter((value, index, self) => self.indexOf(value) === index)
+  ).sort((a, b) => a - b);
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <div className='bg-[#FAF1E6] mx-auto md:w-screen h-screen lg:w-screen'>
+      <div className='py-6 md:py-12 flex justify-center text-2xl'>Mandarin Quiz App</div>
+      <div className='p-2 flex flex-row justify-center md:justify-start md:w-1/2 md:mx-auto md:p-6'>
+        <label className='mr-2 flex flex-row items-center text-sm md:text-base'>
+          Select lesson:
+          <select
+            className='cursor-pointer p-2 rounded border border-solid border-gray-400 ml-2'
+            value={selectedLesson} // ...force the select's value to match the state variable...
+            onChange={(e) => setSelectedLesson(parseInt(e.target.value))} // ... and update the state variable on any change!
           >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+            <option value={0}>All</option>
+            {lessonsArray.map((item) => {
+              return (
+                <option key={item} value={item}>
+                  Lesson {item}
+                </option>
+              );
+            })}
+          </select>
+        </label>
+        <button
+          className='bg-[#B6C867] hover:bg-[#95a93d] rounded p-2 w-30 md:w-36 text-sm md:text-base'
+          onClick={() => setIsPinyinVisible(!isPinyinVisible)}>
+          {isPinyinVisible ? 'Hide' : 'Show'} Pinyin
+        </button>
+      </div>
+
+      {questions.length > 0 && currentQuestionIndex < questions.length ? (
+        <div className='py-2 md:py-8 flex flex-col justify-center items-center'>
+          <div className='w-full flex my-2 md:my-4 py-2 md:py-4 px-10 md:px-6 justify-between md:w-1/2 text-sm md:text-base'>
+            <p>
+              Question {currentQuestionIndex + 1} of {questions.length}
+            </p>
+            <p>Score: {score}</p>
+          </div>
+          <div className='mb-4 h-10 text-lg'>
+            {isResultVisible && result.length !== 0 ? result : null}
+          </div>
+          <div className='bg-[#FFC074] w-2/3 md:w-1/4 h-[100px] md:h-[150px] p-2 md:p-4 flex flex-col justify-center items-center rounded-md'>
+            <p className='text-3xl md:text-6xl'>{questions[currentQuestionIndex].character}</p>
+            {isPinyinVisible && <p className='mt-2'>{questions[currentQuestionIndex].pinyin}</p>}
+          </div>
+          <div>
+            <ul className='m-4 flex flex-col md:flex-row'>
+              {currentChoices.map((choice) => (
+                <li
+                  className='p-2 m-2 md:p-4 md:m-4 border border-solid border-gray-400 rounded-md w-36 text-center cursor-pointer hover:bg-[#B6C867]'
+                  key={choice}
+                  onClick={() => handleAnswer(choice)}>
+                  {choice}
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className='flex flex-col items-center'>
+          <div className='m-4 p-4 flex flex-col items-center'>
+            <p>Quiz completed!</p>
+            <p className='text-xl m-4'>
+              Your score: {score} / {questions.length}
+            </p>
+          </div>
+          <button className='bg-green-200 rounded p-4 w-24 mb-72' onClick={restartQuiz}>
+            Restart
+          </button>
+        </div>
+      )}
 
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px] z-[-1]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Explore the Next.js 13 playground.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  )
+      <footer className='flex justify-center p-2 md:p-4'>
+        <p className='text-xs'>Made with ♡ by stargirl.codes</p>
+      </footer>
+    </div>
+  );
 }
