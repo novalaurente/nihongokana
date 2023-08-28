@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { shuffleArray } from './utils';
 import { quizData } from './quizData';
 
@@ -76,7 +76,7 @@ export default function App() {
     quizData
       .map((item) => item.lesson)
       .filter((value, index, self) => self.indexOf(value) === index)
-  ).sort((a, b) => a - b);
+  );
 
   return (
     <div className='bg-[#FAF1E6] mx-auto md:w-screen md:h-screen lg:w-screen'>
