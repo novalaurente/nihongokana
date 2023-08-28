@@ -10,13 +10,13 @@ export default function App() {
   const [currentChoices, setCurrentChoices] = useState<string[]>([]);
   const [score, setScore] = useState(0);
   const [result, setResult] = useState('');
-  const [selectedLesson, setSelectedLesson] = useState(0);
+  const [selectedLesson, setSelectedLesson] = useState('');
   const [isResultVisible, setIsResultVisible] = useState(true);
   const [isPinyinVisible, setIsPinyinVisible] = useState(true);
 
   let filteredQuizData: any;
 
-  if (selectedLesson === 0) {
+  if (selectedLesson === '') {
     filteredQuizData = [...quizData];
   } else {
     filteredQuizData = quizData.filter((item) => item.lesson === selectedLesson);
@@ -79,7 +79,7 @@ export default function App() {
   ).sort((a, b) => a - b);
 
   return (
-    <div className='bg-[#FAF1E6] mx-auto md:w-screen h-screen lg:w-screen'>
+    <div className='bg-[#FAF1E6] mx-auto md:w-screen md:h-screen lg:w-screen'>
       <div className='py-6 md:py-12 flex justify-center text-2xl'>Mandarin Quiz App</div>
       <div className='p-2 flex flex-row justify-center md:justify-start md:w-1/2 md:mx-auto md:p-6'>
         <label className='mr-2 flex flex-row items-center text-sm md:text-base'>
@@ -87,13 +87,13 @@ export default function App() {
           <select
             className='cursor-pointer p-2 rounded border border-solid border-gray-400 ml-2'
             value={selectedLesson} // ...force the select's value to match the state variable...
-            onChange={(e) => setSelectedLesson(parseInt(e.target.value))} // ... and update the state variable on any change!
+            onChange={(e) => setSelectedLesson(e.target.value)} // ... and update the state variable on any change!
           >
             <option value={0}>All</option>
             {lessonsArray.map((item) => {
               return (
                 <option key={item} value={item}>
-                  Lesson {item}
+                  {item}
                 </option>
               );
             })}
@@ -142,7 +142,9 @@ export default function App() {
               Your score: {score} / {questions.length}
             </p>
           </div>
-          <button className='bg-green-200 rounded p-4 w-24 mb-72' onClick={restartQuiz}>
+          <button
+            className='bg-[#B6C867] hover:bg-[#95a93d] rounded p-4 w-24 mb-72'
+            onClick={restartQuiz}>
             Restart
           </button>
         </div>
