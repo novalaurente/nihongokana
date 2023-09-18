@@ -1,5 +1,25 @@
 import React from 'react';
 
+interface IQuestions {
+  character: string;
+  pinyin: string;
+  answer: string;
+  wrongAnswers: string[];
+  topic: string;
+  lesson: string;
+}
+interface Questionscardprops {
+  questions: IQuestions[];
+  currentQuestionIndex: number;
+  score: number;
+  result: string;
+  isResultVisible: boolean;
+  isPinyinVisible: boolean;
+  currentChoices: string[];
+  handleAnswer: (value: string) => void;
+  handleRestartQuiz: () => void;
+}
+
 export default function Questionscard({
   questions,
   currentQuestionIndex,
@@ -10,7 +30,7 @@ export default function Questionscard({
   currentChoices,
   handleAnswer,
   handleRestartQuiz,
-}: any) {
+}: Questionscardprops) {
   return (
     <div>
       {questions.length > 0 && currentQuestionIndex < questions.length ? (
@@ -30,7 +50,7 @@ export default function Questionscard({
           </div>
           <div className='my-4 w-full flex items-center justify-center'>
             <ul className='w-5/6 flex flex-wrap items-center justify-center'>
-              {currentChoices.map((choice: any) => (
+              {currentChoices.map((choice: string) => (
                 <li
                   className='w-28 h-28 flex items-center justify-center m-4 md:p-4 md:m-4 border border-solid border-gray-400 rounded-md text-center cursor-pointer hover:bg-[#B6C867]'
                   key={choice}

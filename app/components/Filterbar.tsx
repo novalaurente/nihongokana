@@ -1,3 +1,13 @@
+interface Filterbarprops {
+  selectedType: string;
+  setSelectedType: (value: string) => void;
+  selectedLesson: string;
+  setSelectedLesson: (value: string) => void;
+  isPinyinVisible: boolean;
+  setIsPinyinVisible: (value: boolean) => void;
+  options: string[];
+}
+
 export default function Filterbar({
   selectedType,
   setSelectedType,
@@ -6,7 +16,7 @@ export default function Filterbar({
   isPinyinVisible,
   setIsPinyinVisible,
   options,
-}: any) {
+}: Filterbarprops) {
   return (
     <div>
       <div className='px-10 flex flex-col justify-center md:flex-row md:items-center md:w-full md:mx-auto md:p-6'>
@@ -27,7 +37,7 @@ export default function Filterbar({
             value={selectedLesson}
             onChange={(e) => setSelectedLesson(e.target.value)}>
             <option value='All'>All</option>
-            {options.map((item: any) => {
+            {options.map((item: string) => {
               return (
                 <option key={item} value={item}>
                   {item}

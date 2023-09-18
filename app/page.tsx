@@ -6,8 +6,17 @@ import { quizData } from './quizData';
 import Filterbar from './components/Filterbar';
 import Questionscard from './components/Questionscard';
 
+interface IQuestions {
+  character: string;
+  pinyin: string;
+  answer: string;
+  wrongAnswers: string[];
+  topic: string;
+  lesson: string;
+}
+
 export default function App() {
-  const [questions, setQuestions] = useState<any[]>([]);
+  const [questions, setQuestions] = useState<IQuestions[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0); // Using an index instead of the question itself
   const [currentChoices, setCurrentChoices] = useState<string[]>([]);
   const [score, setScore] = useState(0);
@@ -19,7 +28,7 @@ export default function App() {
   const [selectedLesson, setSelectedLesson] = useState('All');
   const [options, setOptions] = useState<string[]>([]);
 
-  let filteredQuizData: any;
+  let filteredQuizData: IQuestions[];
 
   if (selectedLesson === 'All') {
     filteredQuizData = [...quizData];
@@ -32,7 +41,7 @@ export default function App() {
   }
 
   // Function to handle the user's answer submission
-  const handleAnswer = (selectedAnswer: any) => {
+  const handleAnswer = (selectedAnswer: string) => {
     if (selectedAnswer === questions[currentQuestionIndex].answer) {
       setScore((prevScore) => prevScore + 1);
       setResult('Correct!');
@@ -111,7 +120,8 @@ export default function App() {
           setSelectedType={setSelectedType}
           selectedLesson={selectedLesson}
           setSelectedLesson={setSelectedLesson}
-          isPinyinVisible={setIsPinyinVisible}
+          isPinyinVisible={isPinyinVisible}
+          setIsPinyinVisible={setIsPinyinVisible}
           options={options}
         />
         <Questionscard
