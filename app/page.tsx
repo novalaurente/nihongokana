@@ -8,7 +8,6 @@ import Questionscard from './components/Questionscard';
 
 interface IQuestions {
   character: string;
-  pinyin: string;
   answer: string;
   wrongAnswers: string[];
   topic: string;
@@ -22,7 +21,6 @@ export default function App() {
   const [score, setScore] = useState(0);
   const [result, setResult] = useState('');
   const [isResultVisible, setIsResultVisible] = useState(true);
-  const [isPinyinVisible, setIsPinyinVisible] = useState(true);
 
   const [selectedType, setSelectedType] = useState('HSK Lesson');
   const [selectedLesson, setSelectedLesson] = useState('All');
@@ -112,16 +110,14 @@ export default function App() {
   }, [selectedType]);
 
   return (
-    <div className='bg-[#FAF1E6] mx-auto h-screen md:w-screen lg:w-screen'>
+    <div className='bg-[#F5F9EA] mx-auto h-screen md:w-screen lg:w-screen'>
       <div className='flex flex-col justify-between'>
-        <header className='py-6 md:py-12 flex justify-center text-2xl'>Mandarin Quiz App</header>
+        <header className='py-6 md:py-12 flex justify-center text-2xl'>Nihongo Quiz App</header>
         <Filterbar
           selectedType={selectedType}
           setSelectedType={setSelectedType}
           selectedLesson={selectedLesson}
           setSelectedLesson={setSelectedLesson}
-          isPinyinVisible={isPinyinVisible}
-          setIsPinyinVisible={setIsPinyinVisible}
           options={options}
         />
         <Questionscard
@@ -130,7 +126,6 @@ export default function App() {
           score={score}
           result={result}
           isResultVisible={isResultVisible}
-          isPinyinVisible={isPinyinVisible}
           currentChoices={currentChoices}
           handleAnswer={handleAnswer}
           handleRestartQuiz={handleRestartQuiz}
